@@ -30,52 +30,6 @@ module.exports = {
     jest: true,
   },
   rules: {
-    // ============================================================
-    // Reglas de Arquitectura Hexagonal — no-restricted-imports
-    // ============================================================
-
-    /**
-     * CAPA DOMAIN: No puede importar de frameworks, infraestructura, ni presentación.
-     * domain/ solo depende de tipos puros y contratos (ports).
-     *
-     * Restricciones:
-     *  - NO react, react-native (domain es puro TypeScript)
-     *  - NO axios, @tanstack/react-query, zustand (frameworks externos)
-     *  - NO react-navigation (routing)
-     *  - NO infrastructure/ ni presentation/ (capas superiores)
-     */
-    'no-restricted-imports': [
-      'error',
-      {
-        patterns: [
-          {
-            group: ['react', 'react-native', 'react-native/*'],
-            message:
-              'domain/ NO puede importar de React o React Native. ' +
-              'La capa de dominio es TypeScript puro, sin dependencias de UI.',
-          },
-          {
-            group: ['axios', '@tanstack/*', 'zustand'],
-            message:
-              'domain/ NO puede importar frameworks externos (Axios, TanStack Query, Zustand). ' +
-              'Usá contratos (ports) y dejá que infrastructure/ implemente.',
-          },
-          {
-            group: ['@react-navigation/*', 'react-hook-form', 'zod'],
-            message:
-              'domain/ NO puede importar librerías de navegación o formularios. ' +
-              'La lógica de dominio es independiente de la UI.',
-          },
-          {
-            group: ['**/infrastructure/**', '**/presentation/**'],
-            message:
-              'domain/ NO puede importar de infrastructure/ ni presentation/. ' +
-              'La regla de dependencia hexagonal va de exterior → interior, nunca al revés.',
-          },
-        ],
-      },
-    ],
-
     // Reglas generales de TypeScript
     '@typescript-eslint/no-unused-vars': ['error', {argsIgnorePattern: '^_'}],
     '@typescript-eslint/explicit-function-return-type': 'off',
@@ -84,6 +38,47 @@ module.exports = {
   },
 
   overrides: [
+    // ============================================================
+    // CAPA DOMAIN: No puede importar de frameworks, infraestructura, ni presentación.
+    // domain/ solo depende de tipos puros y contratos (ports).
+    // ============================================================
+    {
+      files: ['src/**/domain/**/*.ts'],
+      rules: {
+        'no-restricted-imports': [
+          'error',
+          {
+            patterns: [
+              {
+                group: ['react', 'react-native', 'react-native/*'],
+                message:
+                  'domain/ NO puede importar de React o React Native. ' +
+                  'La capa de dominio es TypeScript puro, sin dependencias de UI.',
+              },
+              {
+                group: ['axios', '@tanstack/*', 'zustand'],
+                message:
+                  'domain/ NO puede importar frameworks externos (Axios, TanStack Query, Zustand). ' +
+                  'Usá contratos (ports) y dejá que infrastructure/ implemente.',
+              },
+              {
+                group: ['@react-navigation/*', 'react-hook-form', 'zod'],
+                message:
+                  'domain/ NO puede importar librerías de navegación o formularios. ' +
+                  'La lógica de dominio es independiente de la UI.',
+              },
+              {
+                group: ['**/infrastructure/**', '**/presentation/**'],
+                message:
+                  'domain/ NO puede importar de infrastructure/ ni presentation/. ' +
+                  'La regla de dependencia hexagonal va de exterior → interior, nunca al revés.',
+              },
+            ],
+          },
+        ],
+      },
+    },
+
     // ============================================================
     // CAPA APPLICATION (usecases): Restricciones intermedias
     // ============================================================
