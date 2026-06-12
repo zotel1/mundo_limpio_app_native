@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    /* Strict Type-Checking — base de la arquitectura hexagonal */
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "exactOptionalPropertyTypes": false,
+
+    /* Module Resolution */
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "target": "ESNext",
+    "lib": ["ESNext"],
+    "jsx": "react-native",
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+
+    /* Path Aliases — hexagonal architecture boundaries */
+    "baseUrl": ".",
+    "paths": {
+      "@core/*": ["src/core/*"],
+      "@features/*": ["src/features/*"]
+    },
+
+    /* Output */
+    "noEmit": true
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx", "jest.setup.ts"],
+  "exclude": ["node_modules", "android", "ios", "babel.config.js", "metro.config.js"]
+}
