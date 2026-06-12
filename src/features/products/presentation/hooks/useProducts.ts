@@ -16,7 +16,7 @@
  * PR 2.5 — T021
  */
 
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@core/query/queryKeys';
 import type { ProductRepository, Product, ProductFormData } from '../../domain';
@@ -42,6 +42,13 @@ export interface UseProductsReturn {
   isLoading: boolean;
   isError: boolean;
   error: Error | null;
+  isFetching: boolean;
+
+  // ──── Query actions ────
+  refetch: () => void;
+  fetchNextPage: () => void;
+  hasNextPage: boolean;
+  isFetchingNextPage: boolean;
 
   // ──── Query state (detalle) ────
   selectedProduct: Product | undefined;
@@ -107,11 +114,28 @@ export function useProducts({
     isLoading,
     isError,
     error,
+    isFetching,
+    refetch,
   } = useQuery({
     queryKey: queryKeys.products.lists(),
     queryFn: () => productRepository.getAllActive(0, 20),
     staleTime: 5 * 60 * 1000, // 5 minutos
   });
+
+  /**
+   * WHAT: Contador de página para paginación simple.
+   * WHY: onEndReached incrementa la página y refetch carga más productos.
+   *      useRef evita re-renders innecesarios por cambio de página.
+   */
+  const pageRef = useRef(0);
+
+  const fetchNextPage = useCallback(() => {
+    pageRef.current += 1;
+    refetch();
+  }, [refetch]);
+
+  const hasNextPage = products.length > 0;
+  const isFetchingNextPage = isFetching && !isLoading;
 
   /**
    * WHAT: Query para el detalle de un producto seleccionado.
@@ -334,6 +358,13 @@ export function useProducts({
     isLoading,
     isError,
     error: (error as Error) ?? null,
+    isFetching,
+
+    // ──── Query actions ────
+    refetch: refetch as () => void,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
 
     // ──── Query state (detalle) ────
     selectedProduct,
