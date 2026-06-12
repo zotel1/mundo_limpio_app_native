@@ -1,0 +1,25 @@
+# ESLint ignore — archivos y directorios que no deben ser analizados
+
+# Dependencias
+node_modules/
+
+# Build outputs
+android/
+ios/
+coverage/
+build/
+dist/
+
+# Config files (no son source code)
+babel.config.js
+metro.config.js
+jest.config.js
+jest.setup.ts
+
+# Assets
+assets/
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
