@@ -1,0 +1,33 @@
+# SDD artifacts (generated, not manually edited)
+.atl/
+
+# Dependencies
+node_modules/
+
+# React Native
+.expo/
+ios/Pods/
+android/.gradle/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+
+# Build
+build/
+dist/
+
+# Environment
+.env
+.env.local
+.env.production
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
