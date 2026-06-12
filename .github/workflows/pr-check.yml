@@ -1,0 +1,72 @@
+/**
+ * GitHub Actions — PR Check Workflow.
+ *
+ * WHAT: CI pipeline que se ejecuta en cada PR hacia `develop`.
+ *       Corre typecheck → lint → tests → coverage gate.
+ * WHY: Automatizar la verificación de calidad antes del merge.
+ *      Si CI falla, el PR no se puede mergear. Sin excepción.
+ * BENEFITS: Detección temprana de errores. Consistencia de código.
+ *           Coverage gate asegura que no se degrade la cobertura de tests.
+ *
+ * Fase 0 — Scaffold: el workflow está configurado pero Jest correrá
+ * con --passWithNoTests porque aún no hay implementación para testear.
+ * En Fase 1+, los tests de features poblarán la suite.
+ */
+name: PR Check
+
+on:
+  pull_request:
+    branches:
+      - develop
+
+jobs:
+  quality:
+    name: Type Check + Lint + Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      # Paso 1: Checkout del código
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Paso 2: Configurar Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # Paso 3: Instalar dependencias (usa package-lock.json para reproducibility)
+      - name: Install dependencies
+        run: npm ci
+
+      # Paso 4: TypeScript type checking (0 errores)
+      # WHAT: Verifica que todo el código TypeScript compila sin errores de tipo.
+      # WHY: Errores de tipo son bugs potenciales. El strict mode de TS los atrapa.
+      - name: TypeScript type check
+        run: npx tsc --noEmit
+
+      # Paso 5: ESLint (0 errores, 0 warnings)
+      # WHAT: Verifica estilo de código y reglas de arquitectura hexagonal.
+      # WHY: no-restricted-imports previene violaciones de capas en tiempo de CI.
+      - name: Lint
+        run: npx eslint src/ --ext .ts,.tsx
+
+      # Paso 6: Jest tests + coverage
+      # WHAT: Corre todos los tests unitarios y de integración con coverage.
+      # WHY: Asegura que la lógica funciona y que no hay regresiones.
+      # NOTA: En Fase 0, usa --passWithNoTests porque no hay tests aún.
+      #       En Fase 1+, este flag se remueve.
+      - name: Run tests with coverage
+        run: npx jest --coverage
+
+      # Paso 7: Subir reporte de coverage como artefacto del workflow
+      # WHAT: Guarda el reporte HTML de coverage para revisión en el PR.
+      # WHY: Permite inspeccionar qué líneas no están cubiertas sin correr local.
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 7
