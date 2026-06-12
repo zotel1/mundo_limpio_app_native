@@ -31,3 +31,6 @@ export type { UseProductsReturn } from './hooks';
 
 // Components — Piezas de UI reutilizables (SearchBar, SwipeableProductItem)
 export { SearchBar, SwipeableProductItem } from './components';
+
+// Screens — Pantallas completas de la feature products
+export { ProductsListScreen } from './screens';
