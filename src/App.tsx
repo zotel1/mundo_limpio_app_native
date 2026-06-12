@@ -1,42 +1,24 @@
 /**
- * App.tsx — Componente raíz de MundoLimpio.
+ * App.tsx — Componente raíz de MundoLimpio (composition root).
  *
- * WHAT: Punto de entrada React de la aplicación. En esta fase (scaffold)
- *       renderiza un placeholder mínimo que será reemplazado en Fase 1.
- * WHY: Necesitamos un componente raíz funcional para que el entry point
- *      (index.js) pueda registrar la app y verificar que RN compila.
- * BENEFITS: Permite validar que el toolchain (tsc, metro, RN) funciona
- *           antes de agregar features complejas.
+ * WHAT: Punto de entrada React que instancia dependencias concretas
+ *       y las inyecta al RootNavigator.
+ * WHY: El composition root es el ÚNICO lugar donde se instancian
+ *      dependencias concretas. El resto de la app depende de
+ *      abstracciones (ITokenStorage, no InMemoryTokenStorage).
+ * BENEFITS: Una sola línea para cambiar implementación
+ *           (InMemory → Keychain). Facilita testing y migraciones.
  */
 import React from 'react';
-import {SafeAreaView, Text, StyleSheet} from 'react-native';
+import { RootNavigator } from '@core/navigation/RootNavigator';
+import { InMemoryTokenStorage } from '@core/storage/tokenStorage';
 
-const App: React.FC = () => {
-  return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>MundoLimpio</Text>
-      <Text style={styles.subtitle}>Scaffold inicial — Fase 0</Text>
-    </SafeAreaView>
-  );
-};
+// WHAT: Instancia concreta de almacenamiento de tokens para desarrollo.
+// WHY: InMemoryTokenStorage no depende de módulos nativos — permite
+//      desarrollar y testear sin dispositivo. Se reemplazará por
+//      KeychainTokenStorage en PR de feature/auth.
+const tokenStorage = new InMemoryTokenStorage();
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#2E7D32',
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: '#666666',
-  },
-});
-
-export default App;
+export default function App() {
+  return <RootNavigator tokenStorage={tokenStorage} />;
+}

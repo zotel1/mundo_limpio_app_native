@@ -1,11 +1,14 @@
 /**
- * Babel config — React Native preset + TypeScript.
+ * Babel config — React Native preset (0.76+).
  *
- * WHAT: Configuración de Babel para compilar TypeScript y JSX en React Native.
- * WHY: React Native usa Babel para transpilar el código fuente. El preset
- *      `module:metro-react-native-babel-preset` es el estándar para RN 0.76+.
- * BENEFITS: Soporte para path aliases (@core/*, @features/*) y syntax moderno.
+ * WHAT: Configuración de Babel usando @react-native/babel-preset que incluye
+ *       el parser de Hermes para manejar tipos Flow modernos (mapped types,
+ *       keyof, etc.) presentes en react-native 0.76 internals.
+ * WHY: metro-react-native-babel-preset usa @babel/plugin-syntax-flow que
+ *      no soporta la sintaxis Flow más reciente. @react-native/babel-preset
+ *      usa babel-plugin-syntax-hermes-parser que sí la soporta.
+ * BENEFITS: Compatibilidad total con RN 0.76.9 para Jest y Metro.
  */
 module.exports = {
-  presets: ['module:metro-react-native-babel-preset'],
+  presets: ['@react-native/babel-preset'],
 };

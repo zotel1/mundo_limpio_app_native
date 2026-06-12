@@ -1,8 +1,11 @@
 /**
- * Core/Navigation — Tipos de navegación type-safe.
+ * Core/Navigation — Tipos de navegación type-safe y RootNavigator.
  *
- * WHAT: Barrel que re-exporta los tipos de React Navigation para la app.
- * WHY: Punto único de importación para RootStackParamList y tipos relacionados.
- * BENEFITS: Una sola importación: `import type { RootStackParamList } from '@core/navigation'`
+ * WHAT: Barrel que re-exporta tipos de React Navigation y el RootNavigator
+ *       con auth guard integrado.
+ * WHY: Punto único de importación para navegación.
+ * BENEFITS: Una sola importación: `import { RootNavigator } from '@core/navigation'`
+ *           o `import type { RootStackParamList } from '@core/navigation'`
  */
 export type { RootStackParamList } from './types';
+export { RootNavigator } from './RootNavigator';
