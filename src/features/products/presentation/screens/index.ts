@@ -6,6 +6,8 @@
  *
  * PR 2.7 — Screens barrel.
  * PR 2.8 — Added ProductDetailScreen export.
+ * PR 2.9 — Added ProductFormScreen export.
  */
 export { ProductsListScreen } from './ProductsListScreen';
 export { ProductDetailScreen } from './ProductDetailScreen';
+export { ProductFormScreen } from './ProductFormScreen';
