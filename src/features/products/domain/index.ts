@@ -23,3 +23,13 @@
 export type { Product, ProductFormData } from './models';
 export { createProduct, createEmptyProductFormData } from './models';
 export type { ProductRepository } from './ports';
+export {
+  GetProductsUseCase,
+  GetAllProductsUseCase,
+  GetProductByIdUseCase,
+  GetProductBySkuUseCase,
+  CreateProductUseCase,
+  UpdateProductUseCase,
+  DeleteProductUseCase,
+  ReactivateProductUseCase,
+} from './usecases';
