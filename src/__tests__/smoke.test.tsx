@@ -11,6 +11,8 @@
 import {render} from '@testing-library/react-native';
 import React from 'react';
 import {Text} from 'react-native';
+import '@testing-library/jest-native/extend-expect';
+import {server} from '../../jest.setup';
 
 describe('Jest + RNTL — Smoke Test (Fase 0)', () => {
   it('debe renderizar un componente React Native usando RNTL', () => {
@@ -26,9 +28,6 @@ describe('Jest + RNTL — Smoke Test (Fase 0)', () => {
   });
 
   it('debe tener MSW server disponible (aún sin handlers)', () => {
-    // Arrange & Act
-    const {server} = require('../../jest.setup');
-
     // Assert
     expect(server).toBeDefined();
     expect(typeof server.listen).toBe('function');

@@ -122,13 +122,13 @@ export function SplashScreen({
    * WHY: Determina si el usuario va a Home (sesión activa) o Login.
    */
   useEffect(() => {
-    tokenStorage.hasTokens().then((hasTokens: boolean) => {
+    tokenStorage.hasTokens().then((_hasTokens: boolean) => {
       // Marcamos authResolved independientemente del resultado
       // La decisión de destino se toma en el efecto de resolved
       setAuthResolved(true);
     });
     // Solo se ejecuta al montar
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line @typescript-eslint/no-use-before-define
   }, []);
 
   /**

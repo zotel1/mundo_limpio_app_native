@@ -24,6 +24,7 @@ describe('LoginUseCase', () => {
     refreshToken: jest.fn(),
     logout: jest.fn(),
     isLoggedIn: jest.fn(),
+    restoreSession: jest.fn(),
   });
 
   it('execute con email y password válidos debe llamar al repositorio', async () => {

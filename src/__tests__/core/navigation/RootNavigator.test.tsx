@@ -36,8 +36,8 @@ import { ITokenStorage } from '@core/storage/tokenStorage';
  * BENEFITS: Tests rápidos, sin dependencias nativas, foco en nuestra lógica.
  */
 jest.mock('@react-navigation/native-stack', () => {
-  const React = require('react');
-  const { View } = require('react-native');
+  const React = jest.requireActual('react');
+  const { View } = jest.requireActual('react-native');
 
   return {
     createNativeStackNavigator: () => {
@@ -95,8 +95,8 @@ jest.mock('@react-navigation/native-stack', () => {
  *      La navegación real se prueba en E2E con Detox.
  */
 jest.mock('@react-navigation/native', () => {
-  const React = require('react');
-  const { View } = require('react-native');
+  const React = jest.requireActual('react');
+  const { View } = jest.requireActual('react-native');
 
   return {
     NavigationContainer: ({ children }: { children: React.ReactNode }) =>

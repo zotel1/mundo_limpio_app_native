@@ -10,10 +10,12 @@
  *           necesitan sin repetir valores mágicos.
  *
  * TDD: GREEN — implementación mínima para pasar los tests definidos en RED.
+ *
+ * NOTA: Sin anotación de tipo explícita (ej. Record<string, TextStyle>)
+ *       porque con `noUncheckedIndexedAccess` causaría TS18048 en tests.
+ *       El tipo se infiere de las claves literales + `as const`.
  */
-import { type TextStyle } from 'react-native';
-
-export const typography: Record<string, TextStyle> = {
+export const typography = {
   // ── Encabezados ──────────────────────────────────────────────────
   h1: {
     fontSize: 28,

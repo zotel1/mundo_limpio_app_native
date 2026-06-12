@@ -11,7 +11,6 @@
 import { AuthRepositoryAdapter } from '@features/auth/infrastructure/adapters/authRepositoryAdapter';
 import { AuthApi } from '@features/auth/infrastructure/api/authApi';
 import type { ITokenStorage } from '@core/storage/tokenStorage';
-import type { AuthSession } from '@features/auth/domain/models/authSession';
 
 describe('AuthRepositoryAdapter', () => {
   let mockAuthApi: jest.Mocked<AuthApi>;

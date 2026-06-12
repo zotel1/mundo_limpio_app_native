@@ -37,4 +37,13 @@ export interface AuthRepository {
    * NO valida expiración — solo existencia.
    */
   isLoggedIn(): Promise<boolean>;
+
+  /**
+   * Restaura la sesión del usuario autenticado.
+   * Llama GET /api/v1/auth/me para obtener el perfil actual.
+   * El authInterceptor maneja el refresh automático del token si expiró.
+   * @throws AuthException si la sesión no es válida (401)
+   * @throws NetworkException si no hay conexión
+   */
+  restoreSession(): Promise<AuthSession>;
 }

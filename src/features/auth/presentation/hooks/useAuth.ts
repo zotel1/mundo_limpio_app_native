@@ -96,19 +96,18 @@ export function useAuth({ authRepository }: UseAuthDeps) {
   /**
    * WHAT: Verifica autenticación al iniciar la app.
    * WHY: Determina si hay tokens guardados para decidir si mostrar
-   *      login o home. La restauración completa de sesión (con /auth/me)
-   *      se implementará en un PR futuro.
+   *      login o home. Si hay tokens, restaura la sesión completa
+   *      llamando GET /auth/me (el authInterceptor maneja el refresh).
    */
   const checkAuth = useCallback(async () => {
     try {
       store.setLoading();
       const isLoggedIn = await authRepository.isLoggedIn();
       if (isLoggedIn) {
-        // Si hay tokens pero no hay sesión en store (primer load),
-        // se necesita un refresh/restore para obtener los datos del usuario.
-        // Esto se maneja en el authInterceptor automáticamente o
-        // se implementará con restoreSession en PR futuro.
-        store.setUnauthenticated(); // Temporal hasta implementar restoreSession
+        // Restaurar sesión con /auth/me — el interceptor refresca
+        // el access token automáticamente si expiró.
+        const session = await authRepository.restoreSession();
+        store.setAuthenticated(session);
       } else {
         store.setUnauthenticated();
       }

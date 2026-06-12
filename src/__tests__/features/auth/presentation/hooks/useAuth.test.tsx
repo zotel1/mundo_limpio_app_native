@@ -28,6 +28,7 @@ const createMockRepo = (): jest.Mocked<AuthRepository> => ({
   refreshToken: jest.fn(),
   logout: jest.fn().mockResolvedValue(undefined),
   isLoggedIn: jest.fn().mockResolvedValue(false),
+  restoreSession: jest.fn().mockResolvedValue(mockSession),
 });
 
 // Wrapper con QueryClientProvider necesario para TanStack Query
@@ -218,7 +219,7 @@ describe('useAuth — hook de autenticación', () => {
     expect(storeState.session).toBeNull();
   });
 
-  it('checkAuth() con isLoggedIn=true → store queda unauthenticated (restore en PR futuro)', async () => {
+  it('checkAuth() con isLoggedIn=true → restaura sesión con restoreSession', async () => {
     const mockRepo = createMockRepo();
     mockRepo.isLoggedIn.mockResolvedValue(true);
 
@@ -231,10 +232,11 @@ describe('useAuth — hook de autenticación', () => {
     });
 
     expect(mockRepo.isLoggedIn).toHaveBeenCalledTimes(1);
+    expect(mockRepo.restoreSession).toHaveBeenCalledTimes(1);
 
-    // Comportamiento actual: queda unauthenticated hasta implementar restoreSession
+    // Comportamiento corregido: restoreSession → authenticated
     const storeState = useAuthStore.getState();
-    expect(storeState.status).toBe('unauthenticated');
+    expect(storeState.status).toBe('authenticated');
   });
 
   it('checkAuth() en error de verificación → unauthenticated con mensaje', async () => {

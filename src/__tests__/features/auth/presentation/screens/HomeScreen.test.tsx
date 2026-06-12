@@ -194,7 +194,7 @@ describe('HomeScreen — pantalla principal post-login', () => {
     renderHomeScreen();
 
     fireEvent.press(screen.getByText('Ver Productos'));
-    expect(mockNavigate).toHaveBeenCalledWith('ProductsList');
+    expect(mockNavigate).toHaveBeenCalledWith({ name: 'ProductsList' });
   });
 
   // ──── Logout ────────────────────────────────────────────────────────

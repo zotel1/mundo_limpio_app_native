@@ -49,3 +49,14 @@ export const AuthResponseSchema = z.object({
   userId: z.number().int().positive().optional().nullable(),
 });
 export type AuthResponseDto = z.infer<typeof AuthResponseSchema>;
+
+// WHAT: Schema Zod para GET /auth/me — perfil del usuario autenticado.
+// WHY: A diferencia de AuthResponse, NO incluye accessToken ni refreshToken.
+//      Solo retorna los datos del perfil para restaurar la sesión.
+export const MeResponseSchema = z.object({
+  userId: z.number().int().positive(),
+  username: z.string(),
+  email: z.string().email().optional().nullable(),
+  roles: z.array(z.string()),
+});
+export type MeResponseDto = z.infer<typeof MeResponseSchema>;

@@ -13,10 +13,12 @@ import {
   LoginRequestDto,
   RegisterRequestDto,
   AuthResponseDto,
+  MeResponseDto,
   LoginRequestSchema,
   RegisterRequestSchema,
   RefreshRequestSchema,
   AuthResponseSchema,
+  MeResponseSchema,
 } from './dtos';
 
 export class AuthApi {
@@ -53,5 +55,16 @@ export class AuthApi {
     const parsed = RefreshRequestSchema.parse({ refreshToken });
     const response = await this.client.post('/api/v1/auth/refresh', parsed);
     return AuthResponseSchema.parse(response.data);
+  }
+
+  /**
+   * Me: GET /api/v1/auth/me
+   * Obtiene el perfil del usuario autenticado actual.
+   * El accessToken se envía automáticamente vía authInterceptor.
+   * Valida response con Zod antes de retornar.
+   */
+  async me(): Promise<MeResponseDto> {
+    const response = await this.client.get('/api/v1/auth/me');
+    return MeResponseSchema.parse(response.data);
   }
 }

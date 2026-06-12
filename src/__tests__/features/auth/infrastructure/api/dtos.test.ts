@@ -116,25 +116,25 @@ describe('AuthResponseSchema', () => {
   });
 
   it('rechaza respuesta sin accessToken', () => {
-    const { accessToken, ...sinAccessToken } = validResponse;
+    const { accessToken: _at, ...sinAccessToken } = validResponse;
     const result = AuthResponseSchema.safeParse(sinAccessToken);
     expect(result.success).toBe(false);
   });
 
   it('rechaza respuesta sin refreshToken', () => {
-    const { refreshToken, ...sinRefreshToken } = validResponse;
+    const { refreshToken: _rt, ...sinRefreshToken } = validResponse;
     const result = AuthResponseSchema.safeParse(sinRefreshToken);
     expect(result.success).toBe(false);
   });
 
   it('rechaza respuesta sin roles', () => {
-    const { roles, ...sinRoles } = validResponse;
+    const { roles: _r, ...sinRoles } = validResponse;
     const result = AuthResponseSchema.safeParse(sinRoles);
     expect(result.success).toBe(false);
   });
 
   it('rechaza respuesta sin username', () => {
-    const { username, ...sinUsername } = validResponse;
+    const { username: _un, ...sinUsername } = validResponse;
     const result = AuthResponseSchema.safeParse(sinUsername);
     expect(result.success).toBe(false);
   });

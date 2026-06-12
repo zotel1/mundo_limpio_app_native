@@ -190,7 +190,16 @@ export function HomeScreen({ navigation }: Props) {
           <TouchableOpacity
             key={card.route}
             style={styles.card}
-            onPress={() => navigation.navigate(card.route)}
+            onPress={() => {
+              // React Navigation v7 tiene overloads estrictos para cada ruta.
+              // Usamos navigate con name + params para type-safety completa.
+              const route = card.route;
+              (navigation.navigate as (options: {
+                name: string;
+                params?: object;
+                merge?: boolean;
+              }) => void)({ name: route as string });
+            }}
             accessibilityRole="button"
           >
             <Text style={styles.cardTitle}>{card.title}</Text>

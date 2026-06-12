@@ -23,6 +23,7 @@ describe('RegisterUseCase', () => {
     refreshToken: jest.fn(),
     logout: jest.fn(),
     isLoggedIn: jest.fn(),
+    restoreSession: jest.fn(),
   });
 
   it('execute con email y password fuertes debe llamar al repositorio', async () => {

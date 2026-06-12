@@ -17,6 +17,7 @@ import {
 import { AuthApi } from '../api/authApi';
 import { ITokenStorage } from '@core/storage/tokenStorage';
 import { mapAuthResponseToSession } from '../api/mappers';
+import { createAuthSession } from '../../domain';
 
 export class AuthRepositoryAdapter implements AuthRepository {
   constructor(
@@ -64,5 +65,16 @@ export class AuthRepositoryAdapter implements AuthRepository {
 
   async isLoggedIn(): Promise<boolean> {
     return this.tokenStorage.hasTokens();
+  }
+
+  async restoreSession(): Promise<AuthSession> {
+    const dto = await this.authApi.me();
+
+    return createAuthSession({
+      userId: dto.userId,
+      username: dto.username,
+      email: dto.email,
+      roles: dto.roles,
+    });
   }
 }

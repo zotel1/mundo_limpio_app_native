@@ -1,9 +1,11 @@
 /**
- * Jest setup — MSW server initialization.
+ * Jest setup — MSW server initialization + jest-native matchers.
  *
  * WHAT: Configura el mock server de MSW (Mock Service Worker) para interceptar
- *       requests HTTP durante los tests.
+ *       requests HTTP durante los tests + extiende expect con matchers de
+ *       @testing-library/jest-native (toBeOnTheScreen, toHaveTextContent, etc.).
  * WHY: MSW permite testear lógica de red sin un backend real.
+ *      jest-native agrega matchers semánticos para RNTL.
  * BENEFITS: Tests determinísticos sin depender de conectividad ni backend.
  *
  * NOTA: La inicialización del MSW server (beforeAll/afterEach/afterAll) debe

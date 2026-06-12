@@ -70,7 +70,7 @@ describe('borderRadius', () => {
   });
 
   test('todos los valores de borderRadius (excepto round) deben ser múltiplos de 4', () => {
-    const { round, ...standard } = borderRadius;
+    const { round: _round, ...standard } = borderRadius;
     const values = Object.values(standard) as number[];
 
     expect(values.length).toBeGreaterThan(0); // GATE: no es un objeto vacío
