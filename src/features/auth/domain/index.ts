@@ -9,7 +9,6 @@
  *
  * domain/ solo depende de:
  *   - TypeScript puro (tipos, interfaces)
- *   - Zod (opcional, para schemas de validación de dominio)
  *   - Otros módulos dentro de domain/ (models → ports → usecases)
  *
  * Estructura de cada feature:
@@ -20,4 +19,8 @@
  * BENEFITS: Esta restricción asegura que la lógica de negocio sea
  *           independiente de frameworks, portable y 100% testeable.
  */
-export {};
+
+export type { AuthSession, LoginRequest, RegisterRequest, AuthResponse } from './models';
+export { createAuthSession } from './models';
+export type { AuthRepository } from './ports';
+export { LoginUseCase, RegisterUseCase } from './usecases';
