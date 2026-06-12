@@ -67,7 +67,7 @@ describe('ProductApi', () => {
         '/api/v1/products?page=0&size=10',
       );
       expect(result.content).toHaveLength(1);
-      expect(result.content[0].id).toBe(1);
+      expect(result.content[0]?.id).toBe(1);
       expect(result.totalPages).toBe(1);
     });
 
