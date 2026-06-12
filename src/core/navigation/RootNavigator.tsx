@@ -23,6 +23,14 @@ import { ITokenStorage } from '@core/storage/tokenStorage';
 import { colors } from '@core/theme/colors';
 import type { RootStackParamList } from './types';
 
+// ──── Screens Reales — PR 3.0 ─────────────────────────────────────
+import { LoginScreen } from '@features/auth/presentation/screens/LoginScreen';
+import { RegisterScreen } from '@features/auth/presentation/screens/RegisterScreen';
+import { HomeScreen } from '@features/auth/presentation/screens/HomeScreen';
+import { ProductsListScreen } from '@features/products/presentation/screens/ProductsListScreen';
+import { ProductDetailScreen } from '@features/products/presentation/screens/ProductDetailScreen';
+import { ProductFormScreen } from '@features/products/presentation/screens/ProductFormScreen';
+
 // ──── Stack Navigator ─────────────────────────────────────────────────
 
 /**
@@ -191,16 +199,16 @@ export function RootNavigator({ tokenStorage }: RootNavigatorProps) {
         <Stack.Screen name="Splash" component={SplashScreen} />
 
         {/* Auth (público) — accesible sin autenticación */}
-        <Stack.Screen name="Login" component={PlaceholderScreen} />
-        <Stack.Screen name="Register" component={PlaceholderScreen} />
+        <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="Register" component={RegisterScreen} />
 
         {/* Home (autenticado) — punto de entrada post-login */}
-        <Stack.Screen name="Home" component={PlaceholderScreen} />
+        <Stack.Screen name="Home" component={HomeScreen} />
 
         {/* Products (Fase 2) */}
-        <Stack.Screen name="ProductsList" component={PlaceholderScreen} />
-        <Stack.Screen name="ProductDetail" component={PlaceholderScreen} />
-        <Stack.Screen name="ProductForm" component={PlaceholderScreen} />
+        <Stack.Screen name="ProductsList" component={ProductsListScreen} />
+        <Stack.Screen name="ProductDetail" component={ProductDetailScreen} />
+        <Stack.Screen name="ProductForm" component={ProductFormScreen} />
 
         {/* Inventory (Fase 3) */}
         <Stack.Screen name="InventoryList" component={PlaceholderScreen} />
