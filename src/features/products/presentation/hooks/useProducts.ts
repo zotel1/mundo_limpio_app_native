@@ -16,12 +16,16 @@
  * PR 2.5 — T021
  */
 
-import { useCallback, useRef } from 'react';
+import { useCallback, useState, useEffect, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@core/query/queryKeys';
 import type { ProductRepository, Product, ProductFormData } from '../../domain';
 import { useProductStore } from '../stores/productStore';
 import { getErrorMessage } from '@core/http/apiException';
+
+// ──── Constants ────
+
+const PAGE_SIZE = 20;
 
 // ──── Tipos ────
 
@@ -64,6 +68,10 @@ export interface UseProductsReturn {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
 
+  // ──── Store state (UI) — showAll toggle ────
+  showAll: boolean;
+  toggleShowAll: () => void;
+
   // ──── Store state (UI) — delete dialog ────
   isDeleteDialogOpen: boolean;
   productToDelete: Product | null;
@@ -105,37 +113,103 @@ export function useProducts({
   // ═══════════════════════════════════════════════════════════════
 
   /**
-   * WHAT: Query para listar productos activos (vista normal del operador).
-   * WHY: staleTime de 5 minutos reduce llamadas innecesarias al backend.
-   *      Los datos se refrescan al crear/editar/eliminar/reactivar productos.
+   * WHAT: Flag que indica si mostrar todos los productos (admin) o solo activos.
+   * WHY: Spec R1 requiere que admin/stock_manager puedan ver inactivos.
+   *      Incluido en queryKey para que toggleShowAll dispare un refetch.
+   */
+  const showAll = store.showAll;
+
+  /**
+   * WHAT: Estado que tracks the current page for server-side pagination.
+   * WHY: useState triggers re-render → useQuery re-executes with new queryKey.
+   *      useRef (previous approach) didn't work because queryFn only runs once
+   *      per queryKey, and refs don't trigger re-evaluation.
+   *      Fix C3: page included in queryKey so each page fetches independently.
+   */
+  const [currentPage, setCurrentPage] = useState(0);
+
+  /**
+   * WHAT: Accumulator para todas las páginas cargadas.
+   * WHY: Cada query sobrescribe la página actual. Para mostrar scroll infinito,
+   *      necesitamos concatenar todas las páginas previas.
+   *      Se resetea al llamar a refetch (pull-to-refresh) o al togglear showAll.
+   */
+  const [allPages, setAllPages] = useState<Product[][]>([[]]);
+
+  /**
+   * WHAT: Query para listar productos paginados.
+   * WHY: Usa getAllActive (solo activos) o getAll (todos) según showAll.
+   *      showAll en queryKey asegura que el query se refetchee al togglear.
+   *      currentPage en queryKey asegura que cada página tenga su propio caché.
+   *      Fix C4: toggle showAll cambia el queryFn y la queryKey.
    */
   const {
-    data: products = [],
+    data: pageData,
     isLoading,
     isError,
     error,
     isFetching,
     refetch,
   } = useQuery({
-    queryKey: queryKeys.products.lists(),
-    queryFn: () => productRepository.getAllActive(0, 20),
+    queryKey: [...queryKeys.products.lists(), showAll, currentPage],
+    queryFn: () =>
+      showAll
+        ? productRepository.getAll(currentPage, PAGE_SIZE)
+        : productRepository.getAllActive(currentPage, PAGE_SIZE),
     staleTime: 5 * 60 * 1000, // 5 minutos
   });
 
   /**
-   * WHAT: Contador de página para paginación simple.
-   * WHY: onEndReached incrementa la página y refetch carga más productos.
-   *      useRef evita re-renders innecesarios por cambio de página.
+   * WHAT: Acumula cada página en allPages cuando el query retorna data.
+   * WHY: Mantiene el historial de páginas para el scroll infinito.
+   *      currentPage === 0 resetea la acumulación (nueva búsqueda/refresh).
    */
-  const pageRef = useRef(0);
+  useEffect(() => {
+    if (pageData) {
+      setAllPages((prev) => {
+        if (currentPage === 0) return [pageData];
+        const copy = [...prev];
+        copy[currentPage] = pageData;
+        return copy;
+      });
+    }
+  }, [pageData, currentPage]);
 
+  /**
+   * WHAT: Products flatteneados desde todas las páginas acumuladas.
+   */
+  const products = useMemo(() => allPages.flat(), [allPages]);
+
+  /**
+   * WHAT: Carga la siguiente página de productos.
+   * WHY: Incrementa currentPage → nuevo queryKey → useQuery refetches
+   *      automáticamente con el nuevo page param.
+   *      Fix C3: antes pageRef.current += 1 + refetch() no funcionaba
+   *      porque queryFn hardcodeaba page=0.
+   */
   const fetchNextPage = useCallback(() => {
-    pageRef.current += 1;
+    setCurrentPage((prev) => prev + 1);
+  }, []);
+
+  /**
+   * WHAT: Determina si hay más páginas disponibles.
+   * WHY: Heurística: si la última página tiene PAGE_SIZE items,
+   *      asumimos que puede haber más. Si tiene menos, es la última.
+   */
+  const hasNextPage = pageData ? pageData.length >= PAGE_SIZE : false;
+
+  const isFetchingNextPage = isFetching && !isLoading && currentPage > 0;
+
+  /**
+   * WHAT: Refetch wrapper que resetea paginación antes de refrescar.
+   * WHY: Pull-to-refresh debe volver a la página 0, limpiando el acumulador
+   *      de páginas previas. Sin este reset, las páginas viejas contaminan
+   *      los resultados del refresh.
+   */
+  const handleRefetch = useCallback(() => {
+    setCurrentPage(0);
     refetch();
   }, [refetch]);
-
-  const hasNextPage = products.length > 0;
-  const isFetchingNextPage = isFetching && !isLoading;
 
   /**
    * WHAT: Query para el detalle de un producto seleccionado.
@@ -365,7 +439,7 @@ export function useProducts({
     isFetching,
 
     // ──── Query actions ────
-    refetch: refetch as () => void,
+    refetch: handleRefetch as () => void,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
@@ -383,6 +457,10 @@ export function useProducts({
     // ──── Store state (search) ────
     searchQuery: store.searchQuery,
     setSearchQuery: store.setSearchQuery,
+
+    // ──── Store state (showAll toggle) ────
+    showAll: store.showAll,
+    toggleShowAll: store.toggleShowAll,
 
     // ──── Store state (delete dialog) ────
     isDeleteDialogOpen: store.isDeleteDialogOpen,

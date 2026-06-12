@@ -34,6 +34,10 @@ import { useProducts } from '../hooks/useProducts';
 import { useProductStore } from '../stores/productStore';
 import type { Product } from '../../domain';
 
+import { createApiClient } from '@core/http';
+import { ProductApi } from '@features/products/infrastructure/api';
+import { ProductRepositoryAdapter } from '@features/products/infrastructure/adapters';
+
 import { colors } from '@core/theme/colors';
 import { typography } from '@core/theme/typography';
 import { spacing } from '@core/theme/spacing';
@@ -153,6 +157,13 @@ export function ProductDetailScreen() {
     };
   }, [productId, store]);
 
+  // ──── Composition root — instancia real del repositorio (Fix C1) ──
+  const productRepository = React.useMemo(() => {
+    const client = createApiClient();
+    const api = new ProductApi(client);
+    return new ProductRepositoryAdapter(api);
+  }, []);
+
   // ──── Hook: orquesta store, queries y mutations ──────────────────
   const {
     selectedProduct,
@@ -163,9 +174,7 @@ export function ProductDetailScreen() {
     reactivateProduct,
     refetch,
   } = useProducts({
-    // TODO(PR-2.9): Inyectar productRepository vía composition root.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    productRepository: null as any,
+    productRepository,
   });
 
   // ──── Handlers ───────────────────────────────────────────────────

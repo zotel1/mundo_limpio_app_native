@@ -44,6 +44,8 @@ interface ProductState {
   formMode: FormMode;
   /** ID del producto que se está editando (null en modo create). */
   editingProductId: number | null;
+  /** Si el admin/stock_manager quiere ver TODOS los productos (incluyendo inactivos). */
+  showAll: boolean;
 
   // ──── Actions ────
   selectProduct: (id: number) => void;
@@ -53,6 +55,7 @@ interface ProductState {
   closeDeleteDialog: () => void;
   setFormMode: (mode: FormMode, productId?: number) => void;
   resetFormMode: () => void;
+  toggleShowAll: () => void;
 }
 
 // ──── Estado inicial ────
@@ -64,6 +67,7 @@ const initialState = {
   productToDelete: null as Product | null,
   formMode: 'create' as FormMode,
   editingProductId: null as number | null,
+  showAll: false,
 };
 
 // ──── Store ────
@@ -147,6 +151,16 @@ export const useProductStore = create<ProductState>((set) => ({
       formMode: 'create',
       editingProductId: null,
     }),
+
+  /**
+   * WHAT: Alterna entre mostrar solo productos activos y todos (incluyendo inactivos).
+   * WHY: Spec R1: admin/stock_manager deben poder ver productos inactivos.
+   *      El hook useProducts usa este flag para elegir entre getAllActive y getAll.
+   * BENEFITS: Toggle simple. El backend protege /all con roles — si un operador
+   *           sin permisos fuerza el toggle, recibirá 403 que el ErrorBanner muestra.
+   */
+  toggleShowAll: () =>
+    set((state) => ({ showAll: !state.showAll })),
 }));
 
 // ──── Selectores atómicos ────
@@ -177,3 +191,6 @@ export const selectFormMode = (state: ProductState): FormMode =>
 
 export const selectEditingProductId = (state: ProductState): number | null =>
   state.editingProductId;
+
+export const selectShowAll = (state: ProductState): boolean =>
+  state.showAll;

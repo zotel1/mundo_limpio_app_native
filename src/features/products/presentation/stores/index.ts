@@ -10,5 +10,6 @@ export {
   selectProductToDelete,
   selectFormMode,
   selectEditingProductId,
+  selectShowAll,
 } from './productStore';
 export type { FormMode } from './productStore';

@@ -13,26 +13,10 @@ import { z } from 'zod';
 
 // ──── Request DTOs ────
 
-/**
- * WHAT: Schema Zod para crear o editar un producto.
- * WHY: Valida que el SKU cumpla el formato esperado por el backend
- *      (mayúsculas, números y guiones), que el nombre no esté vacío,
- *      y que minPrice sea positivo.
- */
-export const ProductRequestSchema = z.object({
-  sku: z
-    .string()
-    .min(1, 'SKU es requerido')
-    .regex(
-      /^[A-Z0-9-]+$/,
-      'SKU must contain only uppercase letters, numbers, and hyphens',
-    ),
-  name: z.string().min(1, 'Nombre es requerido'),
-  minPrice: z.number().positive('Precio mínimo debe ser positivo'),
-});
-
-/** WHAT: Tipo inferido del schema ProductRequest. */
-export type ProductRequestDto = z.infer<typeof ProductRequestSchema>;
+// ProductRequestSchema y ProductRequestDto re-exportados desde ../../validation
+// (Fix C2: schema compartido en raíz de la feature para evitar que presentation
+//  importe de infrastructure — violación hexagonal.)
+export { ProductRequestSchema, type ProductRequestDto } from '../../validation';
 
 // ──── Response DTO ────
 
