@@ -17,4 +17,18 @@
  *        Usa hooks/stores que llaman a usecases (que a su vez usan ports).
  *        La conexión se hace en la Composition Root (features/index.ts).
  */
-export {};
+// Stores — Zustand (estado global de auth)
+export {
+  useAuthStore,
+  selectIsLoading,
+  selectIsAuthenticated,
+  selectStatus,
+  selectSession,
+  selectError,
+  selectRoles,
+  selectUsername,
+} from './stores';
+export type { AuthStatus } from './stores';
+
+// Hooks — TanStack Query + Store (orquestación de auth)
+export { useAuth } from './hooks';
