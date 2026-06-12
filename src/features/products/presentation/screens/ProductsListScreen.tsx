@@ -35,7 +35,10 @@ import { SwipeableProductItem } from '../components/SwipeableProductItem';
 import { useProducts } from '../hooks/useProducts';
 import type { Product } from '../../domain';
 
-import { selectRoles } from '@features/auth/presentation/stores/authStore';
+import { createApiClient } from '@core/http';
+import { ProductApi } from '@features/products/infrastructure/api';
+import { ProductRepositoryAdapter } from '@features/products/infrastructure/adapters';
+
 import { useAuthStore } from '@features/auth/presentation/stores/authStore';
 
 import { colors } from '@core/theme/colors';
@@ -81,10 +84,23 @@ export function ProductsListScreen() {
 
   // ═══════════════════════════════════════════════════════════════
   // Auth roles — toggle showAll solo visible para admin/stock_manager
+  // Selector retorna boolean (primitivo) para evitar infinite loop
+  // que causa selectRoles con ?? [] (nueva referencia en cada lectura).
   // ═══════════════════════════════════════════════════════════════
-  const roles = useAuthStore(selectRoles);
-  const canToggleShowAll =
-    roles.includes('ADMIN') || roles.includes('STOCK_MANAGER');
+  const canToggleShowAll = useAuthStore((state) => {
+    const roles = state.session?.roles ?? [];
+    return roles.includes('ADMIN') || roles.includes('STOCK_MANAGER');
+  });
+
+  // ═══════════════════════════════════════════════════════════════
+  // Composition root — instancia real del repositorio (Fix C1)
+  // Mismo patrón que LoginScreen: crea dependencias inline.
+  // ═══════════════════════════════════════════════════════════════
+  const productRepository = React.useMemo(() => {
+    const client = createApiClient();
+    const api = new ProductApi(client);
+    return new ProductRepositoryAdapter(api);
+  }, []);
 
   // ═══════════════════════════════════════════════════════════════
   // Hook — orquesta store, queries y mutations
@@ -107,9 +123,7 @@ export function ProductsListScreen() {
     closeDeleteDialog,
     deleteProduct,
   } = useProducts({
-    // TODO(PR-2.9): Inyectar productRepository vía composition root.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    productRepository: null as any,
+    productRepository,
   });
 
   // ═══════════════════════════════════════════════════════════════
@@ -256,16 +270,6 @@ export function ProductsListScreen() {
       </View>
     );
   }, [isLoading]);
-
-  // ═══════════════════════════════════════════════════════════════
-  // MUTATION DEPENDENCIES — wiring
-  // ═══════════════════════════════════════════════════════════════
-
-  /**
-   * TODO: Inyectar productRepository vía composition root.
-   * Por ahora, el hook recibe null y las queries no se ejecutan realmente.
-   * La composición de dependencias se completa en PR 2.9.
-   */
 
   // ═══════════════════════════════════════════════════════════════
   // RENDER

@@ -10,8 +10,6 @@
  *
  * TDD: GREEN — implementación mínima para pasar ProductFormScreen.test.tsx.
  * PR 2.9 — T032
- *
- * TODO(PR-2.9): Inyectar productRepository vía composition root.
  */
 
 import React, { useEffect, useCallback } from 'react';
@@ -39,6 +37,10 @@ import { ErrorBanner } from '@core/components/ErrorBanner';
 import { useProducts } from '../hooks/useProducts';
 import { useProductStore } from '../stores/productStore';
 import { ProductRequestSchema } from '../../validation';
+
+import { createApiClient } from '@core/http';
+import { ProductApi } from '@features/products/infrastructure/api';
+import { ProductRepositoryAdapter } from '@features/products/infrastructure/adapters';
 
 import { colors } from '@core/theme/colors';
 import { typography } from '@core/theme/typography';
@@ -98,6 +100,13 @@ export function ProductFormScreen() {
     };
   }, [productId]);
 
+  // ──── Composition root — instancia real del repositorio (Fix C1) ──
+  const productRepository = React.useMemo(() => {
+    const client = createApiClient();
+    const api = new ProductApi(client);
+    return new ProductRepositoryAdapter(api);
+  }, []);
+
   // ──── Hook: orquesta queries y mutations ──────────────────────────
   const {
     selectedProduct,
@@ -105,9 +114,7 @@ export function ProductFormScreen() {
     createProduct,
     updateProduct,
   } = useProducts({
-    // TODO(PR-2.9): Inyectar productRepository vía composition root.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    productRepository: null as any,
+    productRepository,
   });
 
   // ──── Form State ────────────────────────────────────────────────────
