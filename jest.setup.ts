@@ -6,10 +6,6 @@
  * WHY: MSW permite testear lógica de red sin un backend real.
  * BENEFITS: Tests determinísticos sin depender de conectividad ni backend.
  *
- * NOTA: Los matchers de RNTL (toBeOnTheScreen, toHaveTextContent, etc.) son
- *       built-in desde @testing-library/react-native v12.4+. No se necesita
- *       @testing-library/jest-native (deprecado).
- *
  * NOTA: La inicialización del MSW server (beforeAll/afterEach/afterAll) debe
  *       hacerse en cada archivo de test que requiera MSW, o mediante un helper
  *       compartido. setupFiles de Jest no expone estos hooks globales.
