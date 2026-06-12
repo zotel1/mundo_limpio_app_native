@@ -15,4 +15,11 @@
  * REGLA: infrastructure/ NUNCA expone DTOs fuera de esta capa.
  *        Los adapters siempre convierten DTOs ↔ modelos de dominio.
  */
-export {};
+
+// Auth API — llamadas HTTP + Zod DTOs
+export { AuthApi } from './api/authApi';
+export * from './api/dtos';
+export { mapAuthResponseToSession, mapDtoToAuthResponse } from './api/mappers';
+
+// Auth Repository Adapter — implementación concreta del puerto
+export { AuthRepositoryAdapter } from './adapters/authRepositoryAdapter';
