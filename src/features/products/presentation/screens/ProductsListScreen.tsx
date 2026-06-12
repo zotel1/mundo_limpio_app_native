@@ -35,6 +35,9 @@ import { SwipeableProductItem } from '../components/SwipeableProductItem';
 import { useProducts } from '../hooks/useProducts';
 import type { Product } from '../../domain';
 
+import { selectRoles } from '@features/auth/presentation/stores/authStore';
+import { useAuthStore } from '@features/auth/presentation/stores/authStore';
+
 import { colors } from '@core/theme/colors';
 import { typography } from '@core/theme/typography';
 import { spacing } from '@core/theme/spacing';
@@ -77,6 +80,13 @@ export function ProductsListScreen() {
   const navigation = useNavigation<ProductsListNavigationProp>();
 
   // ═══════════════════════════════════════════════════════════════
+  // Auth roles — toggle showAll solo visible para admin/stock_manager
+  // ═══════════════════════════════════════════════════════════════
+  const roles = useAuthStore(selectRoles);
+  const canToggleShowAll =
+    roles.includes('ADMIN') || roles.includes('STOCK_MANAGER');
+
+  // ═══════════════════════════════════════════════════════════════
   // Hook — orquesta store, queries y mutations
   // ═══════════════════════════════════════════════════════════════
   const {
@@ -91,6 +101,8 @@ export function ProductsListScreen() {
     isFetchingNextPage,
     searchQuery,
     setSearchQuery,
+    showAll,
+    toggleShowAll,
     openDeleteDialog,
     closeDeleteDialog,
     deleteProduct,
@@ -271,6 +283,33 @@ export function ProductsListScreen() {
         placeholder="Buscar por nombre o SKU..."
       />
 
+      {/* Toggle showAll — solo visible para admin/stock_manager */}
+      {canToggleShowAll && (
+        <View style={styles.toggleContainer}>
+          <Pressable
+            style={[
+              styles.toggleButton,
+              showAll && styles.toggleButtonActive,
+            ]}
+            onPress={toggleShowAll}
+            accessibilityRole="switch"
+            accessibilityLabel={
+              showAll ? 'Mostrando todos los productos' : 'Mostrando solo activos'
+            }
+            accessibilityState={{ checked: showAll }}
+          >
+            <Text
+              style={[
+                styles.toggleText,
+                showAll && styles.toggleTextActive,
+              ]}
+            >
+              {showAll ? 'Ver todos' : 'Solo activos'}
+            </Text>
+          </Pressable>
+        </View>
+      )}
+
       {/* Loading state — solo durante carga inicial */}
       {isLoading && products.length === 0 && (
         <View style={styles.centered}>
@@ -376,5 +415,31 @@ const styles = StyleSheet.create({
     color: colors.textOnPrimary,
     lineHeight: 30,
     fontWeight: '300',
+  },
+
+  // ── Toggle showAll ──────────────────────────────────────────────
+  toggleContainer: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+  },
+  toggleButton: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+  },
+  toggleButtonActive: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  toggleText: {
+    ...typography.caption,
+    color: colors.textSecondary,
+  },
+  toggleTextActive: {
+    color: colors.textOnPrimary,
   },
 });

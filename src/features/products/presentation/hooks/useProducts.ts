@@ -68,6 +68,10 @@ export interface UseProductsReturn {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
 
+  // ──── Store state (UI) — showAll toggle ────
+  showAll: boolean;
+  toggleShowAll: () => void;
+
   // ──── Store state (UI) — delete dialog ────
   isDeleteDialogOpen: boolean;
   productToDelete: Product | null;
@@ -109,6 +113,13 @@ export function useProducts({
   // ═══════════════════════════════════════════════════════════════
 
   /**
+   * WHAT: Flag que indica si mostrar todos los productos (admin) o solo activos.
+   * WHY: Spec R1 requiere que admin/stock_manager puedan ver inactivos.
+   *      Incluido en queryKey para que toggleShowAll dispare un refetch.
+   */
+  const showAll = store.showAll;
+
+  /**
    * WHAT: Estado que tracks the current page for server-side pagination.
    * WHY: useState triggers re-render → useQuery re-executes with new queryKey.
    *      useRef (previous approach) didn't work because queryFn only runs once
@@ -121,16 +132,16 @@ export function useProducts({
    * WHAT: Accumulator para todas las páginas cargadas.
    * WHY: Cada query sobrescribe la página actual. Para mostrar scroll infinito,
    *      necesitamos concatenar todas las páginas previas.
-   *      Se resetea al llamar a refetch (pull-to-refresh).
+   *      Se resetea al llamar a refetch (pull-to-refresh) o al togglear showAll.
    */
   const [allPages, setAllPages] = useState<Product[][]>([[]]);
 
   /**
-   * WHAT: Query para listar productos activos paginados.
-   * WHY: staleTime de 5 minutos reduce llamadas innecesarias al backend.
-   *      currentPage en queryKey asegura que cada página tenga su propio
-   *      caché y se refetchee cuando cambia.
-   *      Los datos se refrescan al crear/editar/eliminar/reactivar productos.
+   * WHAT: Query para listar productos paginados.
+   * WHY: Usa getAllActive (solo activos) o getAll (todos) según showAll.
+   *      showAll en queryKey asegura que el query se refetchee al togglear.
+   *      currentPage en queryKey asegura que cada página tenga su propio caché.
+   *      Fix C4: toggle showAll cambia el queryFn y la queryKey.
    */
   const {
     data: pageData,
@@ -140,8 +151,11 @@ export function useProducts({
     isFetching,
     refetch,
   } = useQuery({
-    queryKey: [...queryKeys.products.lists(), currentPage],
-    queryFn: () => productRepository.getAllActive(currentPage, PAGE_SIZE),
+    queryKey: [...queryKeys.products.lists(), showAll, currentPage],
+    queryFn: () =>
+      showAll
+        ? productRepository.getAll(currentPage, PAGE_SIZE)
+        : productRepository.getAllActive(currentPage, PAGE_SIZE),
     staleTime: 5 * 60 * 1000, // 5 minutos
   });
 
@@ -443,6 +457,10 @@ export function useProducts({
     // ──── Store state (search) ────
     searchQuery: store.searchQuery,
     setSearchQuery: store.setSearchQuery,
+
+    // ──── Store state (showAll toggle) ────
+    showAll: store.showAll,
+    toggleShowAll: store.toggleShowAll,
 
     // ──── Store state (delete dialog) ────
     isDeleteDialogOpen: store.isDeleteDialogOpen,
