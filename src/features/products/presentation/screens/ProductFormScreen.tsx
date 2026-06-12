@@ -38,7 +38,7 @@ import { LoadingIndicator } from '@core/components/LoadingIndicator';
 import { ErrorBanner } from '@core/components/ErrorBanner';
 import { useProducts } from '../hooks/useProducts';
 import { useProductStore } from '../stores/productStore';
-import { ProductRequestSchema } from '../../infrastructure/api/dtos';
+import { ProductRequestSchema } from '../../validation';
 
 import { colors } from '@core/theme/colors';
 import { typography } from '@core/theme/typography';
