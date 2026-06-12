@@ -16,12 +16,47 @@
  *
  * Ejemplo (Fase 1):
  *   import {createAuthModule} from '@features/auth';
- *   import {apiClient} from '@core/http/apiClient';
+ *   import {apiClient} from '@core/http';
  *   import {tokenStorage} from '@core/storage/tokenStorage';
  *
  *   const authModule = createAuthModule({apiClient, tokenStorage});
  *   export const {authRepository} = authModule;
  *
- * Fase 0 — Scaffold: archivo vacío. Se completa en Fase 1.
+ * PR 2.9 — Composition Root para productos: createProductsModule.
  */
-export {};
+
+import { ProductApi } from '@features/products/infrastructure/api';
+import { ProductRepositoryAdapter } from '@features/products/infrastructure/adapters';
+import type { ProductRepository } from '@features/products/domain';
+import { createApiClient } from '@core/http';
+
+// ═══════════════════════════════════════════════════════════════
+// Products Module
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * WHAT: Contrato del módulo de productos — dependencias listas para usar.
+ */
+export interface ProductsModule {
+  productRepository: ProductRepository;
+}
+
+/**
+ * WHAT: Factory que crea e inyecta todas las dependencias de products.
+ * WHY: Centraliza la creación de ProductApi + ProductRepositoryAdapter.
+ *      Las screens que usen useProducts pueden obtener productRepository
+ *      de esta factory en lugar de instanciar dependencias inline.
+ * BENEFITS: Single source of truth para la cadena de dependencias de products.
+ *           Fácil de reemplazar en tests: mockear createProductsModule.
+ *
+ * Uso:
+ *   const { productRepository } = createProductsModule();
+ *   const hook = useProducts({ productRepository });
+ */
+export function createProductsModule(): ProductsModule {
+  const client = createApiClient();
+  const productApi = new ProductApi(client);
+  const productRepository = new ProductRepositoryAdapter(productApi);
+
+  return { productRepository };
+}
