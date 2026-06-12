@@ -308,10 +308,14 @@ export function useProducts({
         queryKey: queryKeys.products.detail(id),
       });
     },
-    onSettled: () => {
+    onSettled: (_data, _error, variables) => {
       // Refrescar la lista para mostrar el producto como activo
       queryClient.invalidateQueries({
         queryKey: queryKeys.products.lists(),
+      });
+      // Refrescar el detalle del producto reactivado en ProductDetailScreen
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.products.detail(variables),
       });
     },
   });
