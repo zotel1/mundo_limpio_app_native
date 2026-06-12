@@ -1,7 +1,7 @@
 /**
  * Barrel — products/infrastructure.
  *
- * WHAT: Re-exporta la API HTTP y el adapter (cuando exista).
+ * WHAT: Re-exporta la API HTTP y el adapter.
  * WHY: Single import para consumidores de la capa de presentación.
  * BENEFITS: API pública clara sin imports anidados profundos.
  *
@@ -10,3 +10,4 @@
  *               infrastructure/ NUNCA importa de presentation/.
  */
 export * from './api';
+export * from './adapters';
