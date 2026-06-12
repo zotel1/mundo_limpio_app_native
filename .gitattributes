@@ -1,0 +1,27 @@
+# WHAT: Fuerza saltos de línea LF en todo el código fuente
+# WHY: CI (ubuntu-latest) usa LF. Windows por defecto usa CRLF.
+#      Sin esto, git convierte automáticamente y los diffs muestran
+#      el archivo entero como cambiado.
+# BENEFITS: Consistencia entre SOs, CI predecible, diffs limpios
+
+* text=auto eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.js text eol=lf
+*.jsx text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.env text eol=lf
+*.gitattributes text eol=lf
+*.gitignore text eol=lf
+
+# Binarios — no convertir
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.keystore binary
