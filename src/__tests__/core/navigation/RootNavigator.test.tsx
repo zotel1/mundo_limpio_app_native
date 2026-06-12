@@ -21,6 +21,72 @@ import { render, screen, waitFor, act } from '@testing-library/react-native';
 import '@testing-library/jest-native/extend-expect';
 import { ITokenStorage } from '@core/storage/tokenStorage';
 
+// ──── Mocks de Screens Reales (PR 3.0) ────────────────────────────
+// WHAT: Mockeamos las screens reales para que los tests de
+//       redirección sigan funcionando sin deps nativas reales.
+// WHY: RootNavigator.tsx importa las screens al module level.
+//      Sin mocks, sus deps (MMKV, Axios, TQ) infectan el test.
+
+jest.mock('@features/auth/presentation/screens/LoginScreen', () => ({
+  LoginScreen: () => {
+    const React = jest.requireActual('react');
+    const { View } = jest.requireActual('react-native');
+    return React.createElement(View, {
+      accessibilityLabel: 'LoginScreen-real',
+    });
+  },
+}));
+
+jest.mock('@features/auth/presentation/screens/RegisterScreen', () => ({
+  RegisterScreen: () => {
+    const React = jest.requireActual('react');
+    const { View } = jest.requireActual('react-native');
+    return React.createElement(View, {
+      accessibilityLabel: 'RegisterScreen-real',
+    });
+  },
+}));
+
+jest.mock('@features/auth/presentation/screens/HomeScreen', () => ({
+  HomeScreen: () => {
+    const React = jest.requireActual('react');
+    const { View } = jest.requireActual('react-native');
+    return React.createElement(View, {
+      accessibilityLabel: 'HomeScreen-real',
+    });
+  },
+}));
+
+jest.mock('@features/products/presentation/screens/ProductsListScreen', () => ({
+  ProductsListScreen: () => {
+    const React = jest.requireActual('react');
+    const { View } = jest.requireActual('react-native');
+    return React.createElement(View, {
+      accessibilityLabel: 'ProductsListScreen-real',
+    });
+  },
+}));
+
+jest.mock('@features/products/presentation/screens/ProductDetailScreen', () => ({
+  ProductDetailScreen: () => {
+    const React = jest.requireActual('react');
+    const { View } = jest.requireActual('react-native');
+    return React.createElement(View, {
+      accessibilityLabel: 'ProductDetailScreen-real',
+    });
+  },
+}));
+
+jest.mock('@features/products/presentation/screens/ProductFormScreen', () => ({
+  ProductFormScreen: () => {
+    const React = jest.requireActual('react');
+    const { View } = jest.requireActual('react-native');
+    return React.createElement(View, {
+      accessibilityLabel: 'ProductFormScreen-real',
+    });
+  },
+}));
+
 // ──── Mocks de React Navigation ──────────────────────────────────────
 
 /**
@@ -157,8 +223,8 @@ describe('RootNavigator — Splash durante verificación', () => {
     expect(screen.getByLabelText('Indicador de carga')).toBeOnTheScreen();
 
     // El NavigationContainer NO debe tener una pantalla activa visible todavía
-    expect(screen.queryByLabelText('Pantalla: Home')).not.toBeOnTheScreen();
-    expect(screen.queryByLabelText('Pantalla: Login')).not.toBeOnTheScreen();
+    expect(screen.queryByLabelText('HomeScreen-real')).not.toBeOnTheScreen();
+    expect(screen.queryByLabelText('LoginScreen-real')).not.toBeOnTheScreen();
   });
 });
 
@@ -179,11 +245,11 @@ describe('RootNavigator — Redirección a Home (autenticado)', () => {
 
     // Esperar a que checkAuth complete y el estado cambie
     await waitFor(() => {
-      expect(screen.getByLabelText('Pantalla: Home')).toBeOnTheScreen();
+      expect(screen.getByLabelText('HomeScreen-real')).toBeOnTheScreen();
     });
 
     // Verificar que NO estamos en Login
-    expect(screen.queryByLabelText('Pantalla: Login')).not.toBeOnTheScreen();
+    expect(screen.queryByLabelText('LoginScreen-real')).not.toBeOnTheScreen();
     // La splash ya no debe estar visible
     expect(screen.queryByLabelText('Pantalla Splash — verificando sesión')).not.toBeOnTheScreen();
   });
@@ -202,7 +268,7 @@ describe('RootNavigator — Redirección a Home (autenticado)', () => {
     render(<RootNavigator tokenStorage={mockStorage} />);
 
     await waitFor(() => {
-      expect(screen.getByLabelText('Pantalla: Home')).toBeOnTheScreen();
+      expect(screen.getByLabelText('HomeScreen-real')).toBeOnTheScreen();
     });
 
     // Splash NO debe estar renderizado
@@ -225,10 +291,10 @@ describe('RootNavigator — Redirección a Login (no autenticado)', () => {
     render(<RootNavigator tokenStorage={mockStorage} />);
 
     await waitFor(() => {
-      expect(screen.getByLabelText('Pantalla: Login')).toBeOnTheScreen();
+      expect(screen.getByLabelText('LoginScreen-real')).toBeOnTheScreen();
     });
 
-    expect(screen.queryByLabelText('Pantalla: Home')).not.toBeOnTheScreen();
+    expect(screen.queryByLabelText('HomeScreen-real')).not.toBeOnTheScreen();
   });
 });
 
@@ -250,10 +316,10 @@ describe('RootNavigator — Error en verificación de autenticación', () => {
     render(<RootNavigator tokenStorage={mockStorage} />);
 
     await waitFor(() => {
-      expect(screen.getByLabelText('Pantalla: Login')).toBeOnTheScreen();
+      expect(screen.getByLabelText('LoginScreen-real')).toBeOnTheScreen();
     });
 
-    expect(screen.queryByLabelText('Pantalla: Home')).not.toBeOnTheScreen();
+    expect(screen.queryByLabelText('HomeScreen-real')).not.toBeOnTheScreen();
   });
 
   /**
@@ -271,10 +337,10 @@ describe('RootNavigator — Error en verificación de autenticación', () => {
 
     await waitFor(() => {
       // isAuthenticated = false → initialRouteName = 'Login'
-      expect(screen.getByLabelText('Pantalla: Login')).toBeOnTheScreen();
+      expect(screen.getByLabelText('LoginScreen-real')).toBeOnTheScreen();
     });
 
-    expect(screen.queryByLabelText('Pantalla: Home')).not.toBeOnTheScreen();
+    expect(screen.queryByLabelText('HomeScreen-real')).not.toBeOnTheScreen();
   });
 });
 
@@ -361,11 +427,11 @@ describe('RootNavigator — Rutas registradas en el Stack', () => {
     render(<RootNavigator tokenStorage={mockStorage} />);
 
     await waitFor(() => {
-      expect(screen.getByLabelText('Pantalla: Home')).toBeOnTheScreen();
+      expect(screen.getByLabelText('HomeScreen-real')).toBeOnTheScreen();
     });
 
     // Verificamos que la pantalla activa es Home
-    const homeScreen = screen.getByLabelText('Pantalla: Home');
+    const homeScreen = screen.getByLabelText('HomeScreen-real');
     expect(homeScreen).toBeOnTheScreen();
   });
 
@@ -380,11 +446,11 @@ describe('RootNavigator — Rutas registradas en el Stack', () => {
     render(<RootNavigator tokenStorage={mockStorage} />);
 
     await waitFor(() => {
-      expect(screen.getByLabelText('Pantalla: Login')).toBeOnTheScreen();
+      expect(screen.getByLabelText('LoginScreen-real')).toBeOnTheScreen();
     });
 
     // Confirmamos que el placeholder muestra el nombre de ruta correcto
-    const loginScreen = screen.getByLabelText('Pantalla: Login');
+    const loginScreen = screen.getByLabelText('LoginScreen-real');
     expect(loginScreen).toBeOnTheScreen();
   });
 });
