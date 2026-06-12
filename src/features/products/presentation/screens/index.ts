@@ -5,5 +5,7 @@
  * BENEFITS: Refactors internos sin romper imports. API pública estable.
  *
  * PR 2.7 — Screens barrel.
+ * PR 2.8 — Added ProductDetailScreen export.
  */
 export { ProductsListScreen } from './ProductsListScreen';
+export { ProductDetailScreen } from './ProductDetailScreen';
