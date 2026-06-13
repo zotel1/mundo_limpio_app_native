@@ -23,7 +23,7 @@
  */
 
 import React from 'react';
-import { render, screen, waitFor, act } from '@testing-library/react-native';
+import { render, screen, waitFor } from '@testing-library/react-native';
 import '@testing-library/jest-native/extend-expect';
 import { ITokenStorage } from '@core/storage/tokenStorage';
 
