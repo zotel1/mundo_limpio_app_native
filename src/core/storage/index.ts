@@ -12,3 +12,4 @@ export { InMemoryTokenStorage } from './tokenStorage';
 
 export type { IKeyValueStorage } from './IKeyValueStorage';
 export { MMKVStorage } from './MMKVStorage';
+export { OfflineQueue } from './OfflineQueue';
