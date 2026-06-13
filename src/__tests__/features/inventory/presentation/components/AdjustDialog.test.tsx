@@ -18,23 +18,27 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react-native';
 import '@testing-library/jest-native/extend-expect';
+import { useInventoryStore } from '@features/inventory/presentation/stores/inventoryStore';
+import { useInventory } from '@features/inventory/presentation/hooks/useInventory';
+import {
+  adjustFormSchema,
+  AdjustDialog,
+} from '@features/inventory/presentation/components/AdjustDialog';
 
 // ──── Mock Modal — render children when visible=true, null when false ───
 // Named function component so RNTL detects it as a host wrapper
 jest.mock('react-native/Libraries/Modal/Modal', () => {
-  const RealReact = require('react') as typeof import('react');
-  const { View } = require('react-native') as typeof import('react-native');
+  const RealReact = jest.requireActual('react') as typeof import('react');
+  const { View: RealView } = jest.requireActual('react-native') as typeof import('react-native');
 
   function MockModal(props: {
     children: React.ReactNode;
     visible?: boolean;
     testID?: string;
   }) {
-    // RNTL detectHostComponentNames renders Modal without visible prop
-    // so we only hide when visible is explicitly false
     if (props.visible === false) return null;
     return RealReact.createElement(
-      View,
+      RealView,
       { testID: props.testID || 'modal' },
       props.children,
     );
@@ -68,31 +72,6 @@ jest.mock(
     useInventory: jest.fn(),
   }),
 );
-
-// ──── Dynamic imports (after mocks) ────────────────────────────────────
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { useInventoryStore } = require(
-  '@features/inventory/presentation/stores/inventoryStore',
-) as { useInventoryStore: jest.Mock };
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { useInventory } = require(
-  '@features/inventory/presentation/hooks/useInventory',
-) as { useInventory: jest.Mock };
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const {
-  adjustFormSchema,
-  AdjustDialog,
-}: {
-  adjustFormSchema: import('zod').ZodObject<{
-    type: import('zod').ZodEnum<['+', '-']>;
-    quantity: import('zod').ZodNumber;
-    reason: import('zod').ZodString;
-  }>;
-  AdjustDialog: React.ComponentType;
-} = require('@features/inventory/presentation/components/AdjustDialog');
 
 // ──── Helpers ──────────────────────────────────────────────────────────
 
