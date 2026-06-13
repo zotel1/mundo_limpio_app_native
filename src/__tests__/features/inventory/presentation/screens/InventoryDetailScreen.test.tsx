@@ -54,9 +54,15 @@ jest.mock('@react-navigation/native', () => {
 
 // ──── Mock useAuthStore — role-gating ──────────────────────────────────
 
-jest.mock('@features/auth/presentation/stores/authStore', () => ({
-  useAuthStore: jest.fn(),
-}));
+jest.mock('@features/auth/presentation/stores/authStore', () => {
+  const actual = jest.requireActual(
+    '@features/auth/presentation/stores/authStore',
+  );
+  return {
+    ...(actual as Record<string, unknown>),
+    useAuthStore: jest.fn(),
+  };
+});
 
 // ──── Mock useInventory — valores controlados por test ────────────────
 
@@ -198,7 +204,6 @@ describe('InventoryDetailScreen — pantalla de detalle de inventario', () => {
     setRoles(['STOCK_MANAGER']);
     const { getByText: gm } = render(<InventoryDetailScreen />);
     expect(gm('Ajustar Stock')).toBeOnTheScreen();
-    gm('Ajustar Stock'); // assertion above already checks
 
     // Viewer — hidden
     // Need to re-render: unmount previous and render new
