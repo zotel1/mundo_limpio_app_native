@@ -7,3 +7,4 @@
  */
 export { InventoryApi } from './inventoryApi';
 export * from './dtos';
+export { mapInventoryResponseToDomain, mapDomainToAdjustmentRequest } from './mappers';
