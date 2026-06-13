@@ -12,6 +12,8 @@
 
 import { SyncService } from '@core/sync/SyncService';
 import type { SyncableAdjustment, SyncEvent, SyncEventListener } from '@core/sync/SyncService';
+import { ConnectivityService } from '@core/connectivity/ConnectivityService';
+import { NetworkException, ConflictException } from '@core/http/apiException';
 
 // ──── Helpers para crear datos de prueba ────
 
@@ -115,7 +117,6 @@ describe('SyncService', () => {
 
   describe('patrón singleton', () => {
     it('getInstance retorna la misma instancia en llamadas sucesivas', () => {
-      const { ConnectivityService } = require('@core/connectivity/ConnectivityService');
       const connectivity = new ConnectivityService();
 
       const instance1 = SyncService.getInstance(connectivity, mockQueue as any, mockRepo as any);
@@ -125,7 +126,6 @@ describe('SyncService', () => {
     });
 
     it('resetInstance permite crear una nueva instancia para testing', () => {
-      const { ConnectivityService } = require('@core/connectivity/ConnectivityService');
       const connectivity = new ConnectivityService();
 
       const instance1 = SyncService.getInstance(connectivity, mockQueue as any, mockRepo as any);
@@ -144,7 +144,6 @@ describe('SyncService', () => {
 
   describe('drenado al reconectar — FIFO', () => {
     it('drain procesa todos los items de la cola al recibir evento online', async () => {
-      const { ConnectivityService } = require('@core/connectivity/ConnectivityService');
       const connectivity = new ConnectivityService();
 
       // Cola con 2 items
@@ -177,7 +176,6 @@ describe('SyncService', () => {
     });
 
     it('no inicia drenado si el evento es offline (isOnline=false)', async () => {
-      const { ConnectivityService } = require('@core/connectivity/ConnectivityService');
       const connectivity = new ConnectivityService();
 
       const queue = createMockQueue([mockQueueItem]);
@@ -207,14 +205,13 @@ describe('SyncService', () => {
     });
 
     it('reintenta con delay creciente y eventualmente procesa el item tras éxito', async () => {
-      const { ConnectivityService } = require('@core/connectivity/ConnectivityService');
       const connectivity = new ConnectivityService();
 
       const queue = createMockQueue([mockQueueItem]);
 
       // Primer intento falla, segundo tiene éxito
       mockRepo.adjustStock
-        .mockRejectedValueOnce(new (require('@core/http/apiException').NetworkException)('Sin conexión'))
+        .mockRejectedValueOnce(new (NetworkException)('Sin conexión'))
         .mockResolvedValueOnce(mockInventory);
 
       const service = SyncService.getInstance(connectivity, queue as any, mockRepo as any);
@@ -235,14 +232,13 @@ describe('SyncService', () => {
     });
 
     it('abandona el item tras agotar reintentos (max 3), manteniéndolo en cola', async () => {
-      const { ConnectivityService } = require('@core/connectivity/ConnectivityService');
       const connectivity = new ConnectivityService();
 
       const queue = createMockQueue([mockQueueItem]);
 
       // Siempre falla con NetworkException
       mockRepo.adjustStock.mockRejectedValue(
-        new (require('@core/http/apiException').NetworkException)('Sin conexión'),
+        new (NetworkException)('Sin conexión'),
       );
 
       const service = SyncService.getInstance(connectivity, queue as any, mockRepo as any);
@@ -273,14 +269,13 @@ describe('SyncService', () => {
 
   describe('manejo de ConflictException (409)', () => {
     it('saltea el item con conflicto y continúa procesando el siguiente', async () => {
-      const { ConnectivityService } = require('@core/connectivity/ConnectivityService');
       const connectivity = new ConnectivityService();
 
       const queue = createMockQueue([mockQueueItem, mockQueueItem2]);
 
       // Primer item lanza ConflictException, segundo tiene éxito
       mockRepo.adjustStock
-        .mockRejectedValueOnce(new (require('@core/http/apiException').ConflictException)('Conflicto', 409))
+        .mockRejectedValueOnce(new (ConflictException)('Conflicto', 409))
         .mockResolvedValueOnce(mockInventory);
 
       const service = SyncService.getInstance(connectivity, queue as any, mockRepo as any);
@@ -296,13 +291,12 @@ describe('SyncService', () => {
     });
 
     it('no reintenta items con ConflictException', async () => {
-      const { ConnectivityService } = require('@core/connectivity/ConnectivityService');
       const connectivity = new ConnectivityService();
 
       const queue = createMockQueue([mockQueueItem]);
 
       mockRepo.adjustStock.mockRejectedValue(
-        new (require('@core/http/apiException').ConflictException)('Conflicto', 409),
+        new (ConflictException)('Conflicto', 409),
       );
 
       const service = SyncService.getInstance(connectivity, queue as any, mockRepo as any);
@@ -319,7 +313,6 @@ describe('SyncService', () => {
 
   describe('emisión de eventos', () => {
     it('emite sync:start y sync:complete al drenar exitosamente', async () => {
-      const { ConnectivityService } = require('@core/connectivity/ConnectivityService');
       const connectivity = new ConnectivityService();
 
       const queue = createMockQueue([mockQueueItem]);
@@ -345,12 +338,11 @@ describe('SyncService', () => {
     });
 
     it('emite sync:conflict cuando un item genera ConflictException', async () => {
-      const { ConnectivityService } = require('@core/connectivity/ConnectivityService');
       const connectivity = new ConnectivityService();
 
       const queue = createMockQueue([mockQueueItem]);
       mockRepo.adjustStock.mockRejectedValue(
-        new (require('@core/http/apiException').ConflictException)('Conflicto', 409),
+        new (ConflictException)('Conflicto', 409),
       );
 
       const service = SyncService.getInstance(connectivity, queue as any, mockRepo as any);
@@ -371,12 +363,11 @@ describe('SyncService', () => {
     it('emite sync:error cuando un item agota reintentos', async () => {
       jest.useFakeTimers({ legacyFakeTimers: false });
 
-      const { ConnectivityService } = require('@core/connectivity/ConnectivityService');
       const connectivity = new ConnectivityService();
 
       const queue = createMockQueue([mockQueueItem]);
       mockRepo.adjustStock.mockRejectedValue(
-        new (require('@core/http/apiException').NetworkException)('Sin conexión'),
+        new (NetworkException)('Sin conexión'),
       );
 
       const service = SyncService.getInstance(connectivity, queue as any, mockRepo as any);
@@ -405,7 +396,6 @@ describe('SyncService', () => {
     });
 
     it('off() remueve el listener y no recibe más eventos', async () => {
-      const { ConnectivityService } = require('@core/connectivity/ConnectivityService');
       const connectivity = new ConnectivityService();
 
       const queue = createMockQueue([mockQueueItem]);
@@ -431,7 +421,6 @@ describe('SyncService', () => {
 
   describe('cola vacía', () => {
     it('drain sobre cola vacía no hace ninguna llamada al repositorio', async () => {
-      const { ConnectivityService } = require('@core/connectivity/ConnectivityService');
       const connectivity = new ConnectivityService();
 
       const queue = createMockQueue([]); // cola vacía
@@ -446,7 +435,6 @@ describe('SyncService', () => {
     });
 
     it('drain sobre cola vacía igual emite sync:start y sync:complete', async () => {
-      const { ConnectivityService } = require('@core/connectivity/ConnectivityService');
       const connectivity = new ConnectivityService();
 
       const queue = createMockQueue([]);
