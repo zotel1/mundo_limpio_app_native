@@ -73,7 +73,7 @@ const mockSyncDrain = jest.fn().mockResolvedValue(undefined);
 
 jest.mock('@core/sync/SyncService', () => ({
   SyncService: {
-    drain: mockSyncDrain,
+    instance: { drain: mockSyncDrain },
   },
 }));
 
@@ -187,7 +187,7 @@ describe('InventoryListScreen — pantalla de stock bajo', () => {
   it('muestra LoadingIndicator mientras carga, EmptyState sin items, ErrorBanner en fallo', () => {
     // Estado: loading
     setupUseInventory({ isLoadingLowStock: true, lowStockItems: [] });
-    const { rerender, unmount } = renderScreen();
+    const { unmount } = renderScreen();
 
     expect(screen.getByTestId('loading-indicator')).toBeOnTheScreen();
     expect(screen.queryByText('Cloro Concentrado')).not.toBeOnTheScreen();
