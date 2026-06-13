@@ -39,7 +39,8 @@ module.exports = {
       '@react-native|react-native|@react-navigation|' +
       '@tanstack/react-query|zustand|' +
       'axios|' +
-      'react-native-keychain|react-native-mmkv' +
+      'react-native-keychain|react-native-mmkv|' +
+      '@react-native-community/netinfo' +
       ')/)',
   ],
 
