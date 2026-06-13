@@ -22,11 +22,7 @@ import { ConnectivityService } from '@core/connectivity/ConnectivityService';
 import type { OfflineQueue } from '@core/storage/OfflineQueue';
 import type { InventoryRepository } from '@features/inventory/domain/ports/inventoryRepository';
 import type { StockAdjustment } from '@features/inventory/domain';
-import {
-  ConflictException,
-  NetworkException,
-  ServerException,
-} from '@core/http/apiException';
+import { ConflictException } from '@core/http/apiException';
 
 // ──── Tipos públicos ────
 
