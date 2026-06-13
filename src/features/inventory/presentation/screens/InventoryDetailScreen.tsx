@@ -26,6 +26,7 @@ import { BrandedAppBar } from '@core/components/BrandedAppBar';
 import { LoadingIndicator } from '@core/components/LoadingIndicator';
 import { ErrorBanner } from '@core/components/ErrorBanner';
 import { StockIndicator } from '../components/StockIndicator';
+import { AdjustDialog } from '../components/AdjustDialog';
 import { useInventory } from '../hooks/useInventory';
 import type { UseInventoryReturn } from '../hooks/useInventory';
 
@@ -208,6 +209,9 @@ export function InventoryDetailScreen() {
           </>
         )}
       </ScrollView>
+
+      {/* AdjustDialog — modal de ajuste de stock (PR 3.5b) */}
+      <AdjustDialog />
     </SafeAreaView>
   );
 }
