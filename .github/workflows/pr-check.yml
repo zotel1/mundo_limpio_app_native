@@ -1,17 +1,15 @@
-/**
- * GitHub Actions — PR Check Workflow.
- *
- * WHAT: CI pipeline que se ejecuta en cada PR hacia `develop`.
- *       Corre typecheck → lint → tests → coverage gate.
- * WHY: Automatizar la verificación de calidad antes del merge.
- *      Si CI falla, el PR no se puede mergear. Sin excepción.
- * BENEFITS: Detección temprana de errores. Consistencia de código.
- *           Coverage gate asegura que no se degrade la cobertura de tests.
- *
- * Fase 0 — Scaffold: el workflow está configurado pero Jest correrá
- * con --passWithNoTests porque aún no hay implementación para testear.
- * En Fase 1+, los tests de features poblarán la suite.
- */
+# GitHub Actions — PR Check Workflow.
+#
+# WHAT: CI pipeline que se ejecuta en cada PR hacia `develop`.
+#       Corre typecheck → lint → tests → coverage gate.
+# WHY: Automatizar la verificación de calidad antes del merge.
+#      Si CI falla, el PR no se puede mergear. Sin excepción.
+# BENEFITS: Detección temprana de errores. Consistencia de código.
+#           Coverage gate asegura que no se degrade la cobertura de tests.
+#
+# Fase 0 — Scaffold: el workflow está configurado pero Jest correrá
+# con --passWithNoTests porque aún no hay implementación para testear.
+# En Fase 1+, los tests de features poblarán la suite.
 name: PR Check
 
 on:
