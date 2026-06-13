@@ -49,7 +49,7 @@ import { spacing } from '@core/theme/spacing';
 export const adjustFormSchema = z.object({
   type: z.enum(['+', '-']),
   quantity: z
-    .number({ invalid_type_error: 'Ingresá un número válido' })
+    .number({ message: 'Ingresá un número válido' })
     .positive('La cantidad debe ser mayor a 0'),
   reason: z.string().min(1, 'La razón es obligatoria'),
 });
