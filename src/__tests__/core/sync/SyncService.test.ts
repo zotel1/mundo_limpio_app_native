@@ -43,17 +43,22 @@ const mockQueueItem2: SyncableAdjustment = {
 let capturedListener: ((isOnline: boolean) => void) | null = null;
 let mockIsOnline = false;
 
+// Usamos una función plana (no jest.fn()) porque jest.config.js tiene
+// resetMocks: true + restoreMocks: true, lo cual reiniciaría cualquier
+// implementación de jest.fn() en el module factory. Mismo patrón que
+// ConnectivityService.test.ts.
 jest.mock('@core/connectivity/ConnectivityService', () => ({
-  ConnectivityService: jest.fn().mockImplementation(() => ({
-    isOnline: mockIsOnline,
-    addListener: (cb: (isOnline: boolean) => void) => {
-      capturedListener = cb;
-      return () => {
-        capturedListener = null;
-      };
-    },
-    // initialize y checkNow no son usados directamente por SyncService
-  })),
+  ConnectivityService: function MockConnectivityService() {
+    return {
+      isOnline: mockIsOnline,
+      addListener: (cb: (isOnline: boolean) => void) => {
+        capturedListener = cb;
+        return () => {
+          capturedListener = null;
+        };
+      },
+    };
+  },
 }));
 
 // ──── Mocks de OfflineQueue e InventoryRepository ────
@@ -194,7 +199,7 @@ describe('SyncService', () => {
 
   describe('backoff exponencial en NetworkException', () => {
     beforeEach(() => {
-      jest.useFakeTimers();
+      jest.useFakeTimers({ legacyFakeTimers: false });
     });
 
     afterEach(() => {
@@ -219,11 +224,8 @@ describe('SyncService', () => {
       const drainPromise = service.drain();
 
       // El primer intento falló inmediatamente. Ahora debe esperar 1000ms.
-      // Avanzamos el timer para que el sleep(1000) se resuelva.
-      jest.advanceTimersByTime(1100);
-
-      // Consumir microtasks pendientes
-      await Promise.resolve();
+      // advanceTimersByTimeAsync avanza timers Y drena microtasks (promises).
+      await jest.advanceTimersByTimeAsync(1100);
 
       // Ahora el retry debe haber ocurrido y debe haber tenido éxito
       await drainPromise;
@@ -250,16 +252,13 @@ describe('SyncService', () => {
 
       // Primer intento + 3 reintentos = 4 llamadas totales
       // Retry 1: sleep(1000)
-      jest.advanceTimersByTime(1100);
-      await Promise.resolve();
+      await jest.advanceTimersByTimeAsync(1100);
 
       // Retry 2: sleep(2000)
-      jest.advanceTimersByTime(2100);
-      await Promise.resolve();
+      await jest.advanceTimersByTimeAsync(2100);
 
       // Retry 3: sleep(4000)
-      jest.advanceTimersByTime(4100);
-      await Promise.resolve();
+      await jest.advanceTimersByTimeAsync(4100);
 
       await drainPromise;
 
@@ -370,7 +369,7 @@ describe('SyncService', () => {
     });
 
     it('emite sync:error cuando un item agota reintentos', async () => {
-      jest.useFakeTimers();
+      jest.useFakeTimers({ legacyFakeTimers: false });
 
       const { ConnectivityService } = require('@core/connectivity/ConnectivityService');
       const connectivity = new ConnectivityService();
@@ -393,8 +392,7 @@ describe('SyncService', () => {
       // Avanzar todos los reintentos
       for (let i = 0; i < 3; i++) {
         const delay = 1000 * Math.pow(2, i);
-        jest.advanceTimersByTime(delay + 100);
-        await Promise.resolve();
+        await jest.advanceTimersByTimeAsync(delay + 100);
       }
 
       await drainPromise;
