@@ -55,6 +55,8 @@ export interface UseInventoryReturn {
   // ──── Mutation — adjust stock ────
   adjustStock: (productId: number, adjustment: StockAdjustment) => void;
   isAdjusting: boolean;
+  adjustError: Error | null;
+  isAdjustError: boolean;
 
   // ──── Store state (UI) ────
   selectedInventoryId: number | null;
@@ -228,6 +230,8 @@ export function useInventory({
     // ──── Mutation ────
     adjustStock,
     isAdjusting: adjustMutation.isPending,
+    adjustError: (adjustMutation.error as Error) ?? null,
+    isAdjustError: adjustMutation.isError,
 
     // ──── Store state (UI) ────
     selectedInventoryId: store.selectedInventoryId,
