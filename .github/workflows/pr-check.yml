@@ -35,8 +35,9 @@ jobs:
           cache: 'npm'
 
       # Paso 3: Instalar dependencias (usa package-lock.json para reproducibility)
+      # --legacy-peer-deps: evita conflictos de peer dependencies en CI (ej. react-native-screens vs RN 0.76)
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
       # Paso 4: TypeScript type checking (0 errores)
       # WHAT: Verifica que todo el código TypeScript compila sin errores de tipo.
